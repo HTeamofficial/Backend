@@ -1,0 +1,89 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const User = require('./models/user');
+const Transaction = require('./models/transaction');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Kết nối tới MongoDB
+mongoose.connect('mongodb://localhost:27017/your-db-name', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
+});
+const upload = multer({ storage });
+
+// API quản lý khách hàng
+app.post('/api/users', async (req, res) => {
+    try {
+        const { username, password, balance, frozen, service } = req.body;
+        const user = new User({ username, password, balance, frozen, service });
+        await user.save();
+        res.status(201).json(user);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+app.get('/api/users', async (req, res) => {
+    const users = await User.find();
+    res.json(users);
+});
+
+app.put('/api/users/:id', async (req, res) => {
+    try {
+        const { username, password, balance, frozen, service } = req.body;
+        const user = await User.findByIdAndUpdate(req.params.id, { username, password, balance, frozen, service }, { new: true });
+        res.json(user);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// API tải lên file chứa tài khoản
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', req.file.filename);
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if (err) return res.status(500).send(err);
+        // Xử lý nội dung file ở đây (ví dụ: thêm tài khoản vào DB)
+        console.log(data); // In ra nội dung file
+        res.send('File uploaded and processed successfully.');
+    });
+});
+
+// API lịch sử giao dịch
+app.post('/api/transactions', async (req, res) => {
+    try {
+        const { userId, type, amount } = req.body;
+        const transaction = new Transaction({ userId, type, amount });
+        await transaction.save();
+        res.status(201).json(transaction);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+app.get('/api/transactions', async (req, res) => {
+    const transactions = await Transaction.find().populate('userId');
+    res.json(transactions);
+});
+
+// Khởi động server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
