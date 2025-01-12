@@ -1,0 +1,69 @@
+// Thêm người dùng mới
+document.getElementById('add-user-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const response = await fetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    const user = await response.json();
+    loadCustomers(); // Cập nhật bảng người dùng
+});
+
+// Tải danh sách khách hàng
+async function loadCustomers() {
+    const response = await fetch('/api/users');
+    const users = await response.json();
+    const customersBody = document.getElementById('customers-body');
+    customersBody.innerHTML = '';
+
+    users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.balance}</td>
+            <td>${user.frozen ? 'Có' : 'Không'}</td>
+            <td>${user.service}</td>
+            <td><button onclick="editUser('${user._id}')">Chỉnh Sửa</button></td>
+        `;
+        customersBody.appendChild(row);
+    });
+}
+
+// Tải lên file chứa tài khoản
+document.getElementById('upload-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    });
+
+    alert('File đã được tải lên!');
+});
+
+// Tải lịch sử giao dịch
+async function loadTransactions() {
+    const response = await fetch('/api/transactions');
+    const transactions = await response.json();
+    const transactionsBody = document.getElementById('transactions-body');
+    transactionsBody.innerHTML = '';
+
+    transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${transaction.userId.username}</td>
+            <td>${transaction.type}</td>
+            <td>${transaction.amount}</td>
+            <td>${new Date(transaction.date).toLocaleDateString()}</td>
+        `;
+        transactionsBody.appendChild(row);
+    });
+}
+
+// Gọi hàm để tải danh sách khách hàng và giao dịch khi trang tải
+loadCustomers();
+loadTransactions();
