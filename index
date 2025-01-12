@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+
+    <h2>Quản Lý Khách Hàng</h2>
+    <form id="add-user-form">
+        <input type="text" name="username" placeholder="Tên đăng nhập" required>
+        <input type="password" name="password" placeholder="Mật khẩu" required>
+        <input type="number" name="balance" placeholder="Số dư HTC" required>
+        <input type="text" name="service" placeholder="Dịch vụ đang dùng" required>
+        <label>
+            Đóng băng: <input type="checkbox" name="frozen">
+        </label>
+        <button type="submit">Thêm Khách Hàng</button>
+    </form>
+
+    <h2>Danh Sách Khách Hàng</h2>
+    <table id="customers-table">
+        <thead>
+            <tr>
+                <th>Tên Đăng Nhập</th>
+                <th>Số Dư HTC</th>
+                <th>Đóng Băng</th>
+                <th>Dịch Vụ</th>
+                <th>Thao Tác</th>
+            </tr>
+        </thead>
+        <tbody id="customers-body"></tbody>
+    </table>
+
+    <h2>Tải Lên File</h2>
+    <form id="upload-form">
+        <input type="file" name="file" required>
+        <button type="submit">Tải Lên</button>
+    </form>
+
+    <h2>Lịch Sử Giao Dịch</h2>
+    <table id="transactions-table">
+        <thead>
+            <tr>
+                <th>Người Dùng</th>
+                <th>Loại Giao Dịch</th>
+                <th>Số Tiền</th>
+                <th>Ngày</th>
+            </tr>
+        </thead>
+        <tbody id="transactions-body"></tbody>
+    </table>
+
+    <script src="script.js"></script>
+</body>
+</html>
